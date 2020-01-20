@@ -66,7 +66,7 @@ void vdif_write_second( struct vdifinfo *vf, vdif_header *vhdr,
     normalise_complex(
             (ComplexFloat *)data_buffer_vdif,
             vf->sizeof_buffer/2.0,
-            1.0/(*gain) );
+            *gain );
 
     float *data_buffer_ptr = data_buffer_vdif;
     size_t offset_out_vdif = 0;
@@ -240,14 +240,13 @@ void set_level_occupancy(ComplexFloat *input, int nsamples, float *new_gain)
 {
     //float percentage = 0.0;
     //float occupancy = 17.0;
-    float limit = 0.00001;
-    float step = 0.001;
+    //float limit = 0.00001;
+    //float step = 0.001;
     int i = 0;
     float gain = *new_gain;
 
     float percentage_clipped = 100;
-    while (percentage_clipped > 0 && percentage_clipped > limit) {
-        int count = 0;
+    //while (percentage_clipped > 0 && percentage_clipped > limit) {
         int clipped = 0;
         for (i = 0; i < nsamples; i++) {
             if (isnan(CRealf(input[i])) || isnan(CImagf(input[i])))
@@ -256,27 +255,21 @@ void set_level_occupancy(ComplexFloat *input, int nsamples, float *new_gain)
                                  "NaN\n", i );
                 exit(EXIT_FAILURE);
             }
-            if (gain*CRealf(input[i]) >= 0 && gain*CRealf(input[i]) < 64)
-            {
-                count++;
-            }
-            if (fabs(gain*CRealf(input[i])) > 127)
+            if (fabs(gain*CRealf(input[i])) > 127 || fabs(gain*CImagf(input[i])) > 127 )
             {
                 clipped++;
             }
         }
         percentage_clipped = ((float) clipped/nsamples) * 100;
-        if (percentage_clipped < limit) {
-            gain = gain + step;
-        }
-        else {
-            gain = gain - step;
-        }
-        //percentage = ((float)count/nsamples)*100.0;
-        //fprintf(stdout,"Gain set to %f (linear)\n",gain);
-        //fprintf(stdout,"percentage of samples in the first 64 (+ve) levels - %f percent \n",percentage);
-        //fprintf(stdout,"percentage clipped %f percent\n",percentage_clipped);
-    }
+        //The reduction in the gain was commented out until we work our a robust solution
+        //if (percentage_clipped > limit) {
+        //    gain = gain - step;
+        //}
+        if (clipped > 0)
+        {
+            fprintf(stdout,"warning: percentage samples clipped %f percent\n",percentage_clipped);
+        }    
+    //}
     *new_gain = gain;
 }
 
