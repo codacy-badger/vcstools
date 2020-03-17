@@ -210,12 +210,13 @@ void populate_psrfits_header(
     int ch = atoi(rec_channel);
     if (!is_coherent)
     {
-        sprintf(pf->basefilename, "%s_%s_ch%03d_incoh",
-                pf->hdr.project_id, pf->hdr.source, ch);
+        sprintf(pf->basefilename, "%s_%s_%s_%s_ch%03d_incoh",
+                pf->hdr.project_id, pf->hdr.source,
+                pf->hdr.ra_str, pf->hdr.dec_str, ch);
     }
     else
     {
-        sprintf(pf->basefilename, "%s_%s_ch%03d",
+        sprintf(pf->basefilename, "%s_%s_incoh_ch%03d",
                 pf->hdr.project_id, pf->hdr.source, ch);
     }
 
