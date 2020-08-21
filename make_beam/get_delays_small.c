@@ -349,6 +349,12 @@ void get_delays(
                     az,                                   // azimuth & zenith angle to sample
                     (DPIBY2-el));
             /* for the tile <not the look direction> */
+fprintf(stderr, "inputs:\n%ld\n%.12f\n%.12f\n%.12f\n%.12f\n%.12f\n", freq_ch, (MWA_LAT*DD2R), mi->tile_pointing_az*DD2R, (DPIBY2-(mi->tile_pointing_el*DD2R)), az, (DPIBY2-el) );
+fprintf(stderr, "output: [ %+.12f %+.12f ; %+.12f %+.12f ;\n%+.12f %+.12f ; %+.12f %+.12f ]\n------------------------\n",
+        CReald(E[0]), CImagd(E[0]),
+        CReald(E[1]), CImagd(E[1]),
+        CReald(E[2]), CImagd(E[2]),
+        CReald(E[3]), CImagd(E[3]));
 
             for (row=0; row < (int)(mi->ninput); row++) {
 
