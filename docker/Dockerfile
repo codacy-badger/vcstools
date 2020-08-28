@@ -57,13 +57,11 @@ RUN git clone https://github.com/GPU-correlators/xGPU.git && \
 ### Install vcstools ###
 WORKDIR /tmp/vcstools-build
 COPY . /tmp/vcstools-build
-RUN pip3 install . && \
-    mkdir build && \
+RUN mkdir build && \
     cd build && \
     cmake -DCMAKE_INSTALL_PREFIX=/usr \
       -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc \
       -DSLALIB_ROOT_DIR=/usr \
-      -DCMAKE_BEAMFORMER=1 \
       .. && \
     make install
 # Once I make vcstools a proper package this PYTHONPATH addition won't be required
