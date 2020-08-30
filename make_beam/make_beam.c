@@ -408,22 +408,22 @@ int main(int argc, char **argv)
     write_std = sqrt( write_std / nfiles );
 
 
-    fprintf( stderr, "[%f]  **FINISHED BEAMFORMING**\n", NOW-begintime );
-    fprintf( stderr, "[%f]  Total read  processing time: %9.3f s\n",
+    printf("[%f]  **FINISHED BEAMFORMING**\n", NOW-begintime );
+    printf("[%f]  Total read  processing time: %9.3f s\n",
                      NOW-begintime, read_sum );
-    fprintf( stderr, "[%f]  Mean  read  processing time: %9.3f +\\- %8.3f s\n",
+    printf("[%f]  Mean  read  processing time: %9.3f +\\- %8.3f s\n",
                      NOW-begintime, read_mean, read_std );
-    fprintf( stderr, "[%f]  Total delay processing time: %9.3f s\n",
+    printf("[%f]  Total delay processing time: %9.3f s\n",
                      NOW-begintime, delay_sum );
-    fprintf( stderr, "[%f]  Mean  delay processing time: %9.3f +\\- %8.3f s\n",
+    printf("[%f]  Mean  delay processing time: %9.3f +\\- %8.3f s\n",
                      NOW-begintime, delay_mean, delay_std );
-    fprintf( stderr, "[%f]  Total calc  processing time: %9.3f s\n",
+    printf("[%f]  Total calc  processing time: %9.3f s\n",
                      NOW-begintime, calc_sum );
-    fprintf( stderr, "[%f]  Mean  calc  processing time: %9.3f +\\- %8.3f s\n",
+    printf("[%f]  Mean  calc  processing time: %9.3f +\\- %8.3f s\n",
                      NOW-begintime, calc_mean, calc_std );
-    fprintf( stderr, "[%f]  Total write processing time: %9.3f s\n",
+    printf("[%f]  Total write processing time: %9.3f s\n",
                      NOW-begintime, write_sum  );
-    fprintf( stderr, "[%f]  Mean  write processing time: %9.3f +\\- %8.3f s\n",
+    printf("[%f]  Mean  write processing time: %9.3f +\\- %8.3f s\n",
                      NOW-begintime, write_mean, write_std );
 
 
