@@ -7,7 +7,7 @@ project(vcstools)
 
 # Set up version number
 execute_process(
-  COMMAND bash -c "git describe --tags --long | sed 's/-/./' | sed 's/-/_/'"
+  COMMAND bash -c "git describe --tags --abbrev=6 | sed 's/-/./' | sed 's/-/_/' | sed 's/g//'"
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   OUTPUT_VARIABLE VCSTOOLS_VERSION
   OUTPUT_STRIP_TRAILING_WHITESPACE
