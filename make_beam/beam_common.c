@@ -589,8 +589,20 @@ int read_offringa_gains_file( ComplexDouble **antenna_gain, int nant,
 
             pol_idx = 3 - pol; // Read them in "backwards", because RTS's "x" = Offringa's "y"
 
-            fread(&re, sizeof(double), 1, fp);
-            fread(&im, sizeof(double), 1, fp);
+            if (fread(&re, sizeof(double), 1, fp) != 1)
+            {
+                fprintf( stderr, "error: read_offringa_gains_file: "
+                        "Failed to read real value in (ant,pol) = (%d,%d)\n",
+                        ant, pol );
+                exit(EXIT_FAILURE);
+            }
+            if (fread(&im, sizeof(double), 1, fp) != 1)
+            {
+                fprintf( stderr, "error: read_offringa_gains_file: "
+                        "Failed to read imag value in (ant,pol) = (%d,%d)\n",
+                        ant, pol );
+                exit(EXIT_FAILURE);
+            }
 
             // Check for NaNs
             if (isnan(re) | isnan(im)) {
