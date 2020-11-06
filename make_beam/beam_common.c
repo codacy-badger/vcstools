@@ -464,7 +464,11 @@ int read_bandpass_file(
         for (ci = 0; ci < chan_count; ci++) {   // Loop over the row
 
             ch = chan_idxs[ci];                 // Get the channel number
-            fscanf(f, "%lf,%lf,", &amp, &ph);   // Read in the re,im pairs in each row
+            if (fscanf(f, "%lf,%lf,", &amp, &ph) != 2)   // Read in the amp,ph pairs in each row
+            {
+                fprintf( stderr, "error: read_bandpass_file: Failed to read amp,ph pair in channel %d\n", ci );
+                exit(EXIT_FAILURE);
+            }
 
             J[ant][ch][pol] = CScld( CExpd( CMaked(0.0, ph) ), amp );
                                                 // Convert to complex number and store in output array
@@ -495,10 +499,30 @@ int read_offringa_gains_file( ComplexDouble **antenna_gain, int nant,
     uint32_t intervalCount, antennaCount, channelCount, polarizationCount;
 
     fseek(fp, 16, SEEK_SET);
-    fread(&intervalCount,     sizeof(uint32_t), 1, fp);
-    fread(&antennaCount,      sizeof(uint32_t), 1, fp);
-    fread(&channelCount,      sizeof(uint32_t), 1, fp);
-    fread(&polarizationCount, sizeof(uint32_t), 1, fp);
+    if (fread(&intervalCount,     sizeof(uint32_t), 1, fp) != 1)
+    {
+        fprintf( stderr, "error: read_offringa_gains_file: "
+                "Failed to read intervalCount\n" );
+        exit(EXIT_FAILURE);
+    }
+    if (fread(&antennaCount,      sizeof(uint32_t), 1, fp) != 1)
+    {
+        fprintf( stderr, "error: read_offringa_gains_file: "
+                "Failed to read antennaCount\n" );
+        exit(EXIT_FAILURE);
+    }
+    if (fread(&channelCount,      sizeof(uint32_t), 1, fp) != 1)
+    {
+        fprintf( stderr, "error: read_offringa_gains_file: "
+                "Failed to read channelCount\n" );
+        exit(EXIT_FAILURE);
+    }
+    if (fread(&polarizationCount, sizeof(uint32_t), 1, fp) != 1)
+    {
+        fprintf( stderr, "error: read_offringa_gains_file: "
+                "Failed to read polarizationCount\n" );
+        exit(EXIT_FAILURE);
+    }
 
     // Error-checking the info extracted from the header
     if (intervalCount > 1) {
