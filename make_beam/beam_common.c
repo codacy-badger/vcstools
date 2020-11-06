@@ -320,9 +320,17 @@ int read_rts_file(ComplexDouble **G, ComplexDouble *Jref,
 
             // read the amplitude and the Alignment Line
             sscanf(line, "%lf", amp);
-            fgets(line, BUFSIZE - 1, fp);
-            sscanf(line, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf", &re0,
-                           &im0, &re1, &im1, &re2, &im2, &re3, &im3);
+            if (fgets(line, BUFSIZE - 1, fp) == NULL)
+            {
+                fprintf( stderr, "error: read_rts_file: failed to read amplitude\n" );
+                exit(EXIT_FAILURE);
+            }
+            if (sscanf(line, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
+                        &re0, &im0, &re1, &im1, &re2, &im2, &re3, &im3) < 8)
+            {
+                fprintf( stderr, "error: read_rts_file: failed to read alignment matrix\n" );
+                exit(EXIT_FAILURE);
+            }
 
             Jref[0] = CMaked( re0, im0 );
             Jref[1] = CMaked( re1, im1 );
@@ -363,7 +371,7 @@ int read_bandpass_file(
     // Open the file for reading
     FILE *f = NULL;
     if ((f = fopen(filename, "r")) == NULL) {
-        fprintf(stderr, "Error: cannot open Bandpass file: %s\n", filename);
+        fprintf(stderr, "error: read_bandpass_file: cannot open Bandpass file: %s\n", filename);
         exit(EXIT_FAILURE);
     }
 
@@ -371,7 +379,7 @@ int read_bandpass_file(
     int max_len = 4096; // Overkill
     char freqline[max_len];
     if (fgets( freqline, max_len, f ) == NULL) {
-        fprintf(stderr, "Error: could not read first line of %s\n", filename);
+        fprintf(stderr, "error: read_bandpass_file: could not read first line of %s\n", filename);
         exit(EXIT_FAILURE);
     }
 
@@ -390,7 +398,7 @@ int read_bandpass_file(
 
         // Make sure we haven't exceeded the total
         if (chan_count > nchan) {
-            fprintf(stderr, "Error: More than nchan = %d columns in Bandpass file %s\n", nchan, filename);
+            fprintf(stderr, "error: read_bandpass_file: More than nchan = %d columns in Bandpass file %s\n", nchan, filename);
             exit(EXIT_FAILURE);
         }
         chan_idx = (int)roundf( freq_offset*1e6 / (double)chan_width );
@@ -415,7 +423,7 @@ int read_bandpass_file(
             break;
 
         if (ant > nant) {                      // Check that the antenna number is not bigger than expected
-            fprintf(stderr, "Error: More than nant = %d antennas in Bandpass file %s\n", nant, filename);
+            fprintf(stderr, "error: read_bandpass_file: More than nant = %d antennas in Bandpass file %s\n", nant, filename);
             exit(EXIT_FAILURE);
         }
 
@@ -424,14 +432,14 @@ int read_bandpass_file(
         if (ant == curr_ant) {                 // Ensure that there is not an unusual (!=8) number of rows for this antenna
             ant_row++;
             if (ant_row > 8) {
-                fprintf(stderr, "Error: More than 8 rows for antenna %d in Bandpass file %s\n",
+                fprintf(stderr, "error: read_bandpass_file: More than 8 rows for antenna %d in Bandpass file %s\n",
                         ant, filename);
                 exit(EXIT_FAILURE);
             }
         }
         else {
             if (ant_row < 7) {
-                fprintf(stderr, "Error: Fewer than 8 rows for antenna %d in Bandpass file %s\n",
+                fprintf(stderr, "error: read_bandpass_file: Fewer than 8 rows for antenna %d in Bandpass file %s\n",
                         ant, filename);
                 exit(EXIT_FAILURE);
             }
@@ -443,7 +451,11 @@ int read_bandpass_file(
         else                       J = Jf;      // or Jf values (odd rows)
 
         if (J == NULL) {                        // If the caller doesn't care about this row
-            fgets( freqline, max_len, f );      // Skip the rest of this line (freqline isn't needed any more)
+            if (fgets( freqline, max_len, f ) == NULL)   // Skip the rest of this line (freqline isn't needed any more)
+            {
+                fprintf( stderr, "error: read_bandpass_file: Failed to read remaining frequency line\n" );
+                exit(EXIT_FAILURE);
+            }
             continue;                           // And start afresh on the next line
         }
 
