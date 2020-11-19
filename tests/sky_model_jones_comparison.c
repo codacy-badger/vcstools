@@ -23,6 +23,7 @@
 
 typedef struct sky_opts_t
 {
+    int       antenna;         // Which antenna to use (makes a difference for FEE if there are dead dipoles)
     char     *pointings;       // File containing az_za pointings
     char     *metafits;        // Filename of the metafits file
     long int  frequency;       // Observing frequency (in Hz)
@@ -49,6 +50,7 @@ int main(int argc, char **argv)
     /* Set default beamformer settings */
 
     // Variables for required options
+    opts.antenna         = 0;    // Which antenna to use (makes a difference for FEE if there are dead dipoles)
     opts.pointings       = NULL; // File containing az_za pointings
     opts.metafits        = NULL; // Filename of the metafits file
     opts.frequency       = 0;    // Observing frequency (in Hz)
@@ -71,11 +73,8 @@ int main(int argc, char **argv)
 
     // Always use the first tile/pol's set of delays and assume no dead
     // dipoles
-    unsigned int *delays = (unsigned int *)mi.delays[0];
-    double amps[] = { 1.0, 1.0, 1.0, 1.0,
-                      1.0, 1.0, 1.0, 1.0,
-                      1.0, 1.0, 1.0, 1.0,
-                      1.0, 1.0, 1.0, 1.0 };
+    unsigned int *delays = (unsigned int *)mi.delays[opts.antenna];
+    double *amps = mi.amps[opts.antenna];
 
     // Load the FEE2016 beam model
     FEEBeam *beam = new_fee_beam( HYPERBEAM_HDF5 );
@@ -194,7 +193,7 @@ void usage() {
     fprintf(stderr, "REQUIRED OPTIONS\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "\t-p, --pointing_file=FILE  ");
-    fprintf(stderr, "Two-column ascii file containing az and za (in rad)\n");
+    fprintf(stderr, "Two-column ascii file containing az and za (whitespace-separated, in rad)\n");
     fprintf(stderr, "\t-m, --metafits-file=FILE  ");
     fprintf(stderr, "FILE is the metafits file\n");
     fprintf(stderr, "\t-f, --frequency=FREQ      ");
@@ -204,6 +203,8 @@ void usage() {
     fprintf(stderr, "\n");
     fprintf(stderr, "OTHER OPTIONS\n");
     fprintf(stderr, "\n");
+    fprintf(stderr, "\t-a, --antenna=ANT         ");
+    fprintf(stderr, "ANT is the antenna number to calculate the beam for (default: 0)\n");
     fprintf(stderr, "\t-A, --analytic_output     ");
     fprintf(stderr, "Name of analytic output file (default: sky_model_comparison_ANALYTIC.dat)\n");
     fprintf(stderr, "\t-c, --conjugate           ");
@@ -233,6 +234,7 @@ void sky_model_parse_cmdline( int argc, char **argv, sky_opts *opts )
         while (1) {
 
             static struct option long_options[] = {
+                {"antenna",         required_argument, 0, 'a'},
                 {"analytic_output", required_argument, 0, 'A'},
                 {"conjugate",       no_argument,       0, 'c'},
                 {"frequency",       required_argument, 0, 'f'},
@@ -248,12 +250,15 @@ void sky_model_parse_cmdline( int argc, char **argv, sky_opts *opts )
 
             int option_index = 0;
             c = getopt_long( argc, argv,
-                             "A:cf:F:hHm:p:PsV",
+                             "a:A:cf:F:hHm:p:PsV",
                              long_options, &option_index);
             if (c == -1)
                 break;
 
             switch(c) {
+                case 'a':
+                    opts->antenna = atoi(optarg);
+                    break;
                 case 'A':
                     opts->analytic_output = strdup(optarg);
                     break;
