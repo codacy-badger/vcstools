@@ -533,7 +533,7 @@ def vcs_correlate(obsid,start,stop,increment, data_dir, product_dir, ft_res,
             #and this channel
             if (len(f) > 0):
                 corr_batch = "correlator_{0}_gpubox{1:0>2}".format(inc_start,gpubox_label)
-                body = []
+                body = ["cd {0}".format(corr_dir)]
                 if vcs_database_id is not None:
                     body.append(database_vcs.add_database_function())
                 to_corr = 0
@@ -543,8 +543,8 @@ def vcs_correlate(obsid,start,stop,increment, data_dir, product_dir, ft_res,
                     t = Time(int(gpstime), format='gps', scale='utc')
                     unix_time = int(t.unix)
 
-                    offline_correlator_command = "-o {0}/{1} -s {2} -r {3} -i {4} -f 128 -n {5} "\
-                                                 "-c {6:0>2} -d {7}".format(corr_dir, obsid,
+                    offline_correlator_command = "-o {0} -s {1} -r {2} -i {3} -f 128 -n {4} "\
+                                                 "-c {5:0>2} -d {6}".format(obsid,
                                                  unix_time, num_frames, integrations,
                                                  int(ft_res[0]/10), gpubox_label, file)
                     if vcs_database_id is None:
@@ -555,7 +555,7 @@ def vcs_correlate(obsid,start,stop,increment, data_dir, product_dir, ft_res,
                                     offline_correlator_command, vcs_database_id))
                     to_corr += 1
 
-                module_list = ["module switch PrgEnv-cray PrgEnv-gnu"]
+                module_list = ["module switch PrgEnv-cray PrgEnv-gnu", "offline_correlator"]
                 secs_to_run = str(datetime.timedelta(seconds=2*12*num_frames*to_corr))
                 # added factor two on 10 April 2017 as galaxy seemed really slow...
                 submit_slurm(corr_batch, body, module_list=module_list,
