@@ -13,8 +13,8 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <string.h>
-#include "slalib.h"
-#include "slamac.h"
+#include "star/pal.h"
+#include "star/palmac.h"
 #include "../make_beam/beam_common.h"
 #include "psrfits.h"
 #include "../make_beam/mycomplex.h"
@@ -93,18 +93,18 @@ DEBUG END */
 /* DEBUG
 fprintf( stderr, "before slaMap(): options = (%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf)\n", opts.ra, opts.dec, 0.0, 0.0, 0.0, 0.0, eq, mjd );
 DEBUG END */
-        slaMap(opts.ra, opts.dec, 0, 0, 0, 0, eq, mjd, &ra_ap, &dec_ap);
+        palMap(opts.ra, opts.dec, 0, 0, 0, 0, eq, mjd, &ra_ap, &dec_ap);
 /* DEBUG
 fprintf( stderr, "before slaRnorm(): lst = %lf, ra_ap = %lf, DR2H = %lf\n", lst, ra_ap, DR2H );
 DEBUG END */
-        ha = slaRanorm( lst - ra_ap )*DR2H;
-        app_ha_rad = ha * DH2R;
+        ha = palRanorm( lst - ra_ap )*PAL__DR2H;
+        app_ha_rad = ha * PAL__DH2R;
 
 /* DEBUG
 fprintf( stderr, "before slaDe2h(): app_ha_rad = %lf  dec_ap = %lf  lat=%lf\n", app_ha_rad, dec_ap, MWA_LAT*DD2R );
 DEBUG END */
-        slaDe2h(app_ha_rad, dec_ap, MWA_LAT*DD2R, &az, &el);
-        za = DPIBY2 - el;
+        palDe2h(app_ha_rad, dec_ap, MWA_LAT*PAL__DD2R, &az, &el);
+        za = PAL__DPIBY2 - el;
 
         fprintf( fout, "%lf %lf\n", az, za );
     }
@@ -190,7 +190,7 @@ void azza_parse_cmdline( int argc, char **argv, azza_opts *opts )
             switch(c) {
 
                 case 'D':
-                    opts->dec = parse_dec( optarg )*DD2R;
+                    opts->dec = parse_dec( optarg )*PAL__DD2R;
                     break;
                 case 'h':
                     usage();
@@ -206,7 +206,7 @@ void azza_parse_cmdline( int argc, char **argv, azza_opts *opts )
                     opts->output = strdup(optarg);
                     break;
                 case 'R':
-                    opts->ra = parse_ra( optarg )*DH2R;
+                    opts->ra = parse_ra( optarg )*PAL__DH2R;
                     break;
                 case 's':
                     opts->skip_seconds = atoi( optarg );
